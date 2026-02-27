@@ -1,7 +1,8 @@
 # PIBO: Optimal Transport based Permutation Invariant Bayesian Optimization
 
 This repository refers to the paper **_"Optimal Transport based Permutation Invariant Bayesian Optimization of offshore wind farm layouts"_**
-[To Be Continued]
+
+(add link to paper...)
 
 # Repository' s organization:
  * **run_PIBO.R** - R scprit to run the PIBO (Permutation Invariant Bayesian Optimization) agorithm
@@ -11,3 +12,10 @@ This repository refers to the paper **_"Optimal Transport based Permutation Inva
  * **ensemble_model_predict.py** - Python script to load and use an ensemble of 5 xgboost models predicting the generated power for the input wind farm layout. The model has been trained to be consistent with permutation invariance but its input it is not (that is why we created the function in the 'utils.R' script).
  * **permutation_invariant_ensemble_model.pkl** - the trained ensemble of 5 xgboost models predicting the generated power for a given wind far layout
  * ........   
+
+# Why Permutation-Invariant?
+(add the picture of the Bird function?)
+
+# Important conclusions
+(Convergene Plot)
+(Solutions in the Physical Space - relevance of OT)
