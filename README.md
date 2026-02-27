@@ -4,6 +4,8 @@ This repository refers to the paper **_"Optimal Transport based Permutation Inva
 
 (add link to paper...)
 
+(a brief desciption of the application problem and the issue of  permutation-invariance)
+
 # Repository' s organization:
  * **run_PIBO.R** - R scprit to run the PIBO (Permutation Invariant Bayesian Optimization) agorithm
  * **run_vanilla_BO_on_flows.R** - R script to run _vanilla_ BO within the flows space (i.e., the same space of PIBO, but without dealing with permutation invariance)
