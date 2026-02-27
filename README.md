@@ -1,4 +1,7 @@
+# PIBO: Optimal Transport based Permutation Invariant Bayesian Optimization
+
 This repository refers to the paper **_"Optimal Transport based Permutation Invariant Bayesian Optimization of offshore wind farm layouts"_**
+[To Be Continued]
 
 # How it is organized:
  * run_PIBO.R - R scprit to run the PIBO (Permutation Invariant Bayesian Optimization) agorithm
