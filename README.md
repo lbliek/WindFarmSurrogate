@@ -3,7 +3,7 @@
 This repository refers to the paper **_"Optimal Transport based Permutation Invariant Bayesian Optimization of offshore wind farm layouts"_**
 [To Be Continued]
 
-# How it is organized:
+# Repository' s organization:
  * **run_PIBO.R** - R scprit to run the PIBO (Permutation Invariant Bayesian Optimization) agorithm
  * **run_vanilla_BO_on_flows.R** - R script to run _vanilla_ BO within the flows space (i.e., the same space of PIBO, but without dealing with permutation invariance)
  * **run_vanilla_BO_on_pointclouds.R** - R script to run _vanilla_ BO directly in the space of point-clouds (i.e., the physical space where the m=5 wid turbines must be optimally placed).
