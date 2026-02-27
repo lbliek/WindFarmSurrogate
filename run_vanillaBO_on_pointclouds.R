@@ -37,16 +37,6 @@ nfereps <- 1            # repetitions of function evaluation for each query (the
 # Main
 #*********************************************************************************
 
-# Generating the reference point-cloud
-refOk <- F; set.seed(42) # this seed is used only for the generation of P_, which will be the same over all the independent runs!
-while( !refOk ) {
-  P_ <- rmvnorm( m, ref_mean, ref_covm )
-  aux <- as.matrix(dist(P_))
-  diag(aux) <- max(aux)
-  refOk <- (min(aux)<=rho)
-}
-DP_ <- as.matrix(dist(P_)) # it will be used later
-
 RES <-  data.frame( seed=rep(NA,N*length(seeds)),
                     iter=rep(NA,N*length(seeds)),
                     nFeasCandidates=rep(NA,N*length(seeds)),
@@ -85,7 +75,7 @@ for( seed in seeds ) {
     RES[rowIx,] <- data.frame( seed=seed,
                                iter=0,
                                nFeasCandidates=NA,
-                               x=t(Xs[nrow(Xs),]),
+                               x=t(Ps[nrow(Ps),]),
                                acqValue_=NA,
                                y=ys[length(ys)],
                                trnTime=NA, acqTime=NA, evalTime=evalTime,
@@ -146,8 +136,8 @@ for( seed in seeds ) {
     # storing into the data frame
     RES[rowIx,] <- data.frame( seed=seed,
                                iter=length(ys)-n0,
-                               nFeasCandidates=nrow(XX),
-                               x=t(Xs[nrow(Xs),]),
+                               nFeasCandidates=nrow(PP),
+                               x=t(Ps[nrow(Ps),]),
                                acqValue_=min(aux$mean-lcb.beta*aux$sd),
                                y=ys[length(ys)],
                                trnTime=trnTime, acqTime=acqTime, evalTime=evalTime,
