@@ -25,7 +25,7 @@ rho <- 0.1512 # from 2 * rotor diam / farm length = (2*126)/(333.33*5)
 seeds <- 1:30           # seeds for independent runs
 kernel <- "exp"         # GP's kernel (i.e., 'exp' and 'gauss' in the paper)
 lcb.beta <- 1           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
-RSsamples <- 10000      # LHS samples for inexact optimization of the acquisition function (GP-LCB)  
+RSsamples <- 1500 # <---- 1500 to be fair w.r.t. PIBO and vanilla BO in the Flow Space (i.e., same number of feasible solutions for the acquisition)
 n0 <- 2*m+1             # initial random solutions (i.e., 2*m+1 is the minimum required) to fit a GP)
 N <- 500                # total number of queries (including initial random solutions)
 nfereps <- 1            # repetitions of function evaluation for each query (the min value is taken)
