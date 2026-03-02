@@ -24,7 +24,7 @@ rho <- 0.1512 # from 2 * rotor diam / farm length = (2*126)/(333.33*5)
 
 seeds <- 1:30           # seeds for independent runs
 kernel <- "exp"         # GP's kernel (i.e., 'exp' and 'gauss' in the paper)
-lcb.beta <- 1           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
+lcb.beta <- 3           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
 RSsamples <- 10000      # LHS samples for inexact optimization of the acquisition function (GP-LCB)  
 n0 <- 2*m+1             # initial random solutions (i.e., 2*m+1 is the minimum required) to fit a GP)
 N <- 500                # total number of queries (including initial random solutions)
@@ -138,11 +138,23 @@ for( seed in seeds ) {
         XX <- XX[feasibleIxs,]
       }
     }
-    
+
+    # making all the feasible solutions consistent with OT!
+    for( jj in 1:nrow(XX) ) {
+      P <- P_ + matrix(XX[jj,],m,2)
+      ot <- transport( pp(P_), pp(P), p=2, method="networkflow" )
+      stopifnot( nrow(ot)==m )
+      ot <- ot[order(ot$from),]
+      P <- P[ot$to,]
+      XX[jj,] <- P - P_
+    }
+        
     # optimizing (inexactly) the acquisition function
     aux <- predict( gp, data.frame(x=XX), "UK" )
     X_next <- XX[which.min(aux$mean-lcb.beta*aux$sd),]
     
+    #**************** Now it is uselss! 
+    #*
     # making X_next consistent with OT!
     P <- P_ + matrix(X_next,m,2)
     ot <- transport( pp(P_), pp(P), p=2, method="networkflow" )
@@ -173,6 +185,8 @@ for( seed in seeds ) {
                                trnTime=trnTime, acqTime=acqTime, evalTime=evalTime,
                                stringsAsFactors=F )
     
+    rowIx <- rowIx + 1
+    
     cat("=")
     if( (length(ys)-n0)%%50==0 || length(ys)==N ) {
       cat("] ",length(ys),"/",N,"\t(y+ = ",round(min(ys),2),")\n",sep="")
@@ -192,37 +206,22 @@ BS <- NULL
 for( s in sort(unique(RES$seed)) )
   BS <- rbind( BS, cummin( c(min(RES$y[RES$seed==s][1:n0]), RES$y[RES$seed==s][-(1:n0)]) ) )
 
-BS_avg <- apply(BS,2,mean)
+BS_avg <- -apply(BS,2,mean)
 BS_up <- BS_avg + apply(BS,2,sd); BS_lo <- 2*BS_avg - BS_up
 
 plot( 0:(N-n0), BS_avg, type="l", lwd=2, ylim=range(BS_lo, BS_up),
       xlab="BO iters", ylab="Best Seen" )
-lines( 0:(N-n0), apply(BS,2,median), col="darkgrey", lwd=3 )
+lines( 0:(N-n0), -apply(BS,2,median), col="darkgrey", lwd=3 )
 polygon( c(0:(N-n0),(N-n0):0),  c(BS_lo,rev(BS_up)), col=adjustcolor("black",alpha.f=0.1), border=F )
 
-clrs <- rainbow(nrow(BS))
-plot( 0:(N-n0), BS[1,], type="l", lwd=2, ylim=range(BS), col=clrs[1],
-      xlab="BO iters", ylab="Best Seen" ) 
-for( i in 2:nrow(BS) )
-  lines( 0:(N-n0), BS[i,], type="l", lwd=2, col=clrs[i] ) 
+# clrs <- rainbow(nrow(BS))
+# plot( 0:(N-n0), BS[1,], type="l", lwd=2, ylim=range(BS), col=clrs[1],
+#       xlab="BO iters", ylab="Best Seen" ) 
+# for( i in 2:nrow(BS) )
+#   lines( 0:(N-n0), BS[i,], type="l", lwd=2, col=clrs[i] ) 
 
 
 cat("> Saving results...")
 if( !dir.exists("RESULTS") )
   dir.create("RESULTS")
 saveRDS( RES, paste0("RESULTS/results_",length(seeds),"_",kernel,"_",lcb.beta,"_",n0,"_",N,"_",nfereps,".RDS") )
-
-stop("\n[STOP]")
-
-aux <- RES[RES$seed==1,]; clrs <- c("blue","deepskyblue","orange","green3","red","purple")
-plot( P_, pch=19, cex=2, col=clrs, xlim=c(-1,1), ylim=c(-1,1) )
-rect( 0,0,1,1 )
-for( i in 1:nrow(aux) ) {
-  if( i > 1 ) {
-    points( P_ + matrix(as.numeric(aux[i-1,4:13]),m,2), pch=19, cex=2, col="white" )
-    rect( 0,0,1,1 )
-  }
-  points( P_ + matrix(as.numeric(aux[i,4:13]),m,2), pch=21, cex=2, bg=adjustcolor(clrs,alpha.f=30) )
-  invisible(readline("[INVIO]"))
-}
-

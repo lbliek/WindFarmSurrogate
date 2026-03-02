@@ -98,6 +98,9 @@ for( seed in seeds ) {
                                y=ys[length(ys)],
                                trnTime=NA, acqTime=NA, evalTime=evalTime,
                                stringsAsFactors=F )
+    
+    rowIx <- rowIx + 1
+    
   }
   cat("done!\n")
   
@@ -172,6 +175,8 @@ for( seed in seeds ) {
                                y=ys[length(ys)],
                                trnTime=trnTime, acqTime=acqTime, evalTime=evalTime,
                                stringsAsFactors=F )
+    
+    rowIx <- rowIx + 1 
     
     cat("=")
     if( (length(ys)-n0)%%50==0 || length(ys)==N ) {
