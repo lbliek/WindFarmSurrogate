@@ -6,8 +6,8 @@
 # the ensemble model
 
 permutation_invariant_objective <- function(x) {
-  X <- data.frame(x=matrix(x,ncol=2))
+  X <- data.frame(x=matrix(x,ncol=2,byrow=T))
   ixs <- order(X$x.1,X$x.2)
-  x <- as.vector(as.matrix(X[ixs,]))
+  x <- as.vector(t(as.matrix(X[ixs,])))
   return( objective(x) )
 }

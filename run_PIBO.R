@@ -22,9 +22,9 @@ rho <- 0.1512 # from 2 * rotor diam / farm length = (2*126)/(333.33*5)
 # Bayesian Optimization setup
 # ***************************************************
 
-seeds <- 1:30           # seeds for independent runs
-kernel <- "gauss"       # GP's kernel (i.e., 'exp' and 'gauss' in the paper)
-lcb.beta <- 1           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
+seeds <- 1:5            # seeds for independent runs
+kernel <- "exp"         # GP's kernel (i.e., 'exp' and 'gauss' in the paper)
+lcb.beta <- 0           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
 RSsamples <- 10000      # LHS samples for inexact optimization of the acquisition function (GP-LCB)  
 n0 <- 2*m+1             # initial random solutions (i.e., 2*m+1 is the minimum required) to fit a GP)
 N <- 500                # total number of queries (including initial random solutions)
@@ -78,7 +78,7 @@ for( seed in seeds ) {
     evalTime <- Sys.time()
     tmp <- numeric()
     for( k in 1:nfereps )
-      tmp[k] <- permutation_invariant_objective(as.vector(P))
+      tmp[k] <- permutation_invariant_objective(as.vector(t(P)))
     evalTime <- difftime(Sys.time(),evalTime,units="secs")
     ys[i] <- min(tmp)
     
@@ -87,7 +87,7 @@ for( seed in seeds ) {
     stopifnot( nrow(ot)==m )
     ot <- ot[order(ot$from),]
     P <- P[ot$to,]
-    Xs <- rbind( Xs, as.vector(P-P_) )
+    Xs <- rbind( Xs, as.vector(t(P-P_)) )
     
     # storing into the data frame
     RES[rowIx,] <- data.frame( seed=seed,
@@ -122,12 +122,12 @@ for( seed in seeds ) {
       
       # rescaling XX w.r.t. to the original search space of P!
       for( j in 1:ncol(XX) )
-        XX[,j] <- XX[,j]-as.vector(P_[j])
+        XX[,j] <- XX[,j] - as.vector(t(P_))[j]
       
       # selecting only feasible X
       feasibleIxs <- numeric() 
       for( i in 1:nrow(XX) ) {
-        X <- matrix(XX[i,],m,2)
+        X <- matrix(XX[i,],m,2,byrow=T)
         DX <- as.matrix(dist(X))
         ixs <- which(DX<DP_+rho, arr.ind=T)
         if( nrow(ixs)==m )
@@ -141,22 +141,20 @@ for( seed in seeds ) {
 
     # making all the feasible solutions consistent with OT!
     for( jj in 1:nrow(XX) ) {
-      P <- P_ + matrix(XX[jj,],m,2)
+      P <- P_ + matrix(XX[jj,],m,2,byrow=T)
       ot <- transport( pp(P_), pp(P), p=2, method="networkflow" )
       stopifnot( nrow(ot)==m )
       ot <- ot[order(ot$from),]
       P <- P[ot$to,]
-      XX[jj,] <- P - P_
+      XX[jj,] <- as.vector(t(P - P_))
     }
         
     # optimizing (inexactly) the acquisition function
     aux <- predict( gp, data.frame(x=XX), "UK" )
     X_next <- XX[which.min(aux$mean-lcb.beta*aux$sd),]
     
-    #**************** Now it is uselss! 
-    #*
-    # making X_next consistent with OT!
-    P <- P_ + matrix(X_next,m,2)
+    # making X_next consistent with OT! (it should be irrelevant because we already did it for each solution)
+    P <- P_ + matrix(X_next,m,2,byrow=T)
     ot <- transport( pp(P_), pp(P), p=2, method="networkflow" )
     stopifnot( nrow(ot)==m )
     ot <- ot[order(ot$from),]
@@ -168,10 +166,10 @@ for( seed in seeds ) {
     evalTime <- Sys.time()
     tmp <- numeric()
     for( k in 1:nfereps )
-      tmp[k] <- permutation_invariant_objective(as.vector(P))
+      tmp[k] <- permutation_invariant_objective(as.vector(t(P)))
     evalTime <- difftime( Sys.time(), evalTime )
     
-    Xs <- rbind( Xs, as.vector(P-P_) )
+    Xs <- rbind( Xs, as.vector(t(P-P_)) )
     ys <- c(ys,min(tmp))
     
     
