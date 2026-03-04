@@ -23,8 +23,8 @@ rho <- 0.1512 # from 2 * rotor diam / farm length = (2*126)/(333.33*5)
 # ***************************************************
 
 seeds <- 1:30           # seeds for independent runs
-kernel <- "exp"         # GP's kernel (i.e., 'exp' and 'gauss' in the paper)
-lcb.beta <- 1           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
+kernel <- "gauss"         # GP's kernel (i.e., 'exp' and 'gauss' in the paper)
+lcb.beta <- 0           # beta for GP's LCB (i.e., we minimize the amount of generated power changed in sign)
 RSsamples <- 10000      # LHS samples for inexact optimization of the acquisition function (GP-LCB)  
 n0 <- 2*m+1             # initial random solutions (i.e., 2*m+1 is the minimum required) to fit a GP)
 N <- 500                # total number of queries (including initial random solutions)
@@ -214,5 +214,5 @@ for( i in 2:nrow(BS) )
 
 cat("> Saving results...")
 if( !dir.exists("RESULTS_vanilla_BO_on_flows") )
-  dir.create("RESULTS_vanilla_BO_on_pointclouds")
+  dir.create("RESULTS_vanilla_BO_on_flows")
 saveRDS( RES, paste0("RESULTS_vanilla_BO_on_flows/results_",length(seeds),"_",kernel,"_",lcb.beta,"_",n0,"_",N,"_",nfereps,".RDS") )
