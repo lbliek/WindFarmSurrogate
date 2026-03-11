@@ -47,3 +47,18 @@ for( folder in folders ) {
 }
 
 
+
+
+
+
+for( f in allFiles ) {
+  r1 <- readRDS(paste0(folders[1],"/",f) )
+  r2 <- readRDS(paste0(folders[2],"/",f) )
+  r3 <- readRDS(paste0(folders[3],"/",f) )
+  r1 <- aggregate(r1$y,by=list(r1$seed),min)
+  r2 <- aggregate(r2$y,by=list(r2$seed),min)
+  r3 <- aggregate(r3$y,by=list(r3$seed),min)
+  aux <- cbind(r1$x,r2$x,r3$x)
+  aux <- apply(aux,1,which.min)
+  cat(f,"  \t won by PIBO:",sum(aux==1),"/",nrow(r1),"\t won by BO-on-flows:",sum(aux==2),"/",nrow(r1),"\n")
+}
